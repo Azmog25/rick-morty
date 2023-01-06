@@ -1,24 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import NavigationBar from "./components/NavigationBar";
+import Acceuil from "./components/pages/Acceuil";
+import {Route, Routes} from "react-router-dom";
+import Episodes from "./components/pages/Episodes";
+import Favoris from "./components/pages/Favoris";
+import PagePersonnage from "./components/pages/PagePersonnage";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <>
+          <NavigationBar/>
+          <Routes>
+              <Route path={"/"} element={<Acceuil/>}></Route>
+              <Route path={"/Episodes/:page"} element={<Episodes/>}></Route>
+              <Route path={"/Personnage/:id"} element={<PagePersonnage/>}></Route>
+              <Route path={"/PersonnagesFav"} element={<Favoris/>}></Route>
+              <Route path={"/Listes"} element={<Episodes/>}></Route>
+              <Route path={"/Favoris"} element={<Favoris/>}></Route>
+          </Routes>
+      </>
   );
 }
 
