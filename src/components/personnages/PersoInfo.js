@@ -14,7 +14,6 @@ function PersoInfo(props) {
         } else {
             favIds.push(id)
         }
-        console.log(favIds)
         setIsFavorite(!isFavorite)
         setCookies("favoris", favIds)
     }

@@ -1,10 +1,14 @@
 import {useEffect, useState} from "react";
 import {Accordion, Button} from "react-bootstrap";
 import {Link, useParams} from "react-router-dom";
+import MiniCarte from "../personnages/MiniCarte";
 
 function Episodes() {
     const [episodes, setEpisodes] = useState([])
+    const [characters, setCharacters] = useState([])
+    const [episode, setEpisode] = useState([])
     const [isLoaded, setLoaded] = useState(false)
+
     let { page } = useParams()
 
     page = parseInt(page)
@@ -17,8 +21,24 @@ function Episodes() {
             .then(data => {
                 setEpisodes(data.results)
                 setLoaded(true)
+
+                episodes.forEach(ep => {
+                    fetch('https://rickandmortyapi.com/api/episode/' + parseInt(ep.episode.split("E")[1]))
+                        .then(res => res.json())
+                        .then(data => {
+                            setEpisode(data);
+                            console.log(data)
+
+                            const characterRequest = data.characters.map(char => fetch(char).then(res => res.json()));
+                            Promise.all(characterRequest).then(characterData => {
+                                setLoaded(true);
+                                setCharacters(characterData);
+                            });
+                        })
+                })
             })
     }, [page])
+
 
     if(isLoaded) {
         return (

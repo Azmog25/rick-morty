@@ -1,6 +1,23 @@
 import {Navbar, Nav, Container, NavDropdown} from 'react-bootstrap';
+import {
+    auth,
+    logout,
+} from "../database/DBHandler";
+import {useEffect, useState} from "react";
 
 function NavigationBar() {
+    const [connected, setConnected] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            setConnected(!!user);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
     return (
         <Navbar bg="dark" expand="lg" variant="dark" sticky={"top"}>
             <Container>
@@ -14,6 +31,13 @@ function NavigationBar() {
                             <NavDropdown.Item href={"/EpisodesFav"}>Episodes</NavDropdown.Item>
                             <NavDropdown.Item href={"/PersonnagesFav"}>Personnages</NavDropdown.Item>
                         </NavDropdown>
+                    </Nav>
+                    <Nav className="ml-auto">
+                        {connected ? (
+                            <Nav.Link href={"/"} onClick={logout}>Déconnexion</Nav.Link>
+                        ) : (
+                            <Nav.Link href="/">Connexion/Inscription</Nav.Link>
+                        )}
                     </Nav>
                 </Navbar.Collapse>
             </Container>

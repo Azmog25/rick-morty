@@ -38,7 +38,7 @@ function TableauEpisode(props) {
                             <td>{ep.episode}</td>
                             <td>{ep.name}</td>
                             <td>{ep.air_date}</td>
-                            <td><a href={"/episode/" + ep.episode.split("E")[1]}>voir la fiche de l'épisode</a></td>
+                            <td><a href={"/episode/" + parseInt(ep.episode.split("E")[1])}>voir la fiche de l'épisode</a></td>
                         </tr>
                     )}
                         </tbody>
