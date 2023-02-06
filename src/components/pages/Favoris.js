@@ -1,29 +1,39 @@
 import {useCookies} from "react-cookie";
 import React, {useEffect, useState} from "react";
 import Personnage from "../personnages/Personnage";
+import {getFavoris} from "../../database/DBHandler";
+import {useSelector} from "react-redux";
 
 function Favoris() {
     const [cookies] = useCookies(['favoris'])
     const [characters, setCharacters] = useState([])
     const [isLoaded, setLoaded] = useState(false)
+    const user = useSelector(state => state.user)
+    console.log("user ", user)
 
-    let favIds = cookies.favoris !== undefined ? cookies.favoris : [];
     let persoFav = []
 
     useEffect(() => {
-        let link = 'https://rickandmortyapi.com/api/character/['
+        if(user) {
+            getFavoris(user)
+                .then((res) => {
+                    console.log("tableau des favoris : ", res)
+                    let link = 'https://rickandmortyapi.com/api/character/['
 
-        favIds.forEach(id => {
-            link += id + ','
-        })
-        link = link.slice(0, -1) + ']'
+                    res.forEach(id => {
+                        link += id + ','
+                    })
+                    link = link.slice(0, -1) + ']'
 
-        fetch(link)
-            .then(res => res.json())
-            .then(data => {
-                setLoaded(true)
-                setCharacters(data)
-            })
+                    fetch(link)
+                        .then(response => response.json())
+                        .then(data => {
+                            setLoaded(true)
+                            setCharacters(data)
+                        })
+                })
+                .catch((err) => console.log(err))
+        }
     }, [])
 
     if(isLoaded) {
@@ -31,12 +41,12 @@ function Favoris() {
             persoFav.push(characters[i])
         }
     } else {
-        return <div>Loading ...</div>
+        return <h3>Veuillez vous connecter pour avoir accès à la page favoris</h3>
     }
 
     return (
         <div className={"d-flex flex-row"}>
-            {persoFav.length === 0 ? <h3 style={{margin: "auto"}}>aucun personnage en favoris</h3> : persoFav.map(character =>
+            {persoFav.map(character =>
                 <Personnage key={character.id} data={character}/>
             )}
         </div>

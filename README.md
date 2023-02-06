@@ -1,4 +1,5 @@
 mail : leo.carrez@edu.univ-fcomte.fr
+Le système d'inscription fonctionne mais il faut se déconnecter et se reconnecter pour avoir un site fonctionnel
 
 # Getting Started with Create React App
 

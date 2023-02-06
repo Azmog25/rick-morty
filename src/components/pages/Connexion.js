@@ -1,15 +1,28 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, logInWithEmailAndPassword, signInWithGoogle } from "../../database/DBHandler";
 import { useAuthState } from "react-firebase-hooks/auth";
 import "../../Inscription.css";
+import {useDispatch} from "react-redux";
+import {setUser} from "../../redux/userSlice";
+import {persist} from "../../redux/store";
 
 function Connexion() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [user, loading] = useAuthState(auth);
-    const navigate = useNavigate();
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [user, loading] = useAuthState(auth)
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+
+    const handleSignIn = async (email, password) => {
+        await logInWithEmailAndPassword(email, password)
+            .then((res) => {
+                console.log(res)
+                dispatch(setUser(res))
+                persist.persist()
+            })
+            .catch((err) => console.log(err))
+    }
 
     useEffect(() => {
         if (loading) {
@@ -36,7 +49,7 @@ function Connexion() {
                 />
                 <button
                     className="login__btn"
-                    onClick={() => logInWithEmailAndPassword(email, password)}
+                    onClick={() => handleSignIn(email, password)}
                 >
                     Login
                 </button>

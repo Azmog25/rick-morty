@@ -1,11 +1,16 @@
 import React, {useEffect, useState} from "react";
 import Personnage from "../personnages/Personnage";
+import {useDispatch, useSelector} from "react-redux";
 
 function Acceuil() {
     const [characters, setCharacters] = useState([])
     const [isLoaded, setLoaded] = useState(false)
     let ids = []
     let perso = []
+
+    // const dispatch = useDispatch()
+    const user = useSelector(state => state.user)
+    console.log(user)
 
     function rand(min, max, tab) {
         for(let i = 0; i < 5; i++) {

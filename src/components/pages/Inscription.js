@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import {Link, useNavigate} from "react-router-dom";
 import {
-    auth,
+    auth, logInWithEmailAndPassword,
     registerWithEmailAndPassword,
     signInWithGoogle,
 } from "../../database/DBHandler";
 import "../../Register.css";
+import {useDispatch, useSelector} from "react-redux";
+import {setUser} from "../../redux/actions/index";
+import {persist} from "../../redux/store";
 
 function Inscription() {
     const [email, setEmail] = useState("");
@@ -14,24 +17,33 @@ function Inscription() {
     const [name, setName] = useState("");
     const [user, loading] = useAuthState(auth);
     const navigate = useNavigate()
-    const register = () => {
-        if (!name) alert("Please enter name");
-        registerWithEmailAndPassword(name, email, password);
-    };
+    const dispatch = useDispatch()
+
+    const handleSignIn = async (email, password) => {
+        await registerWithEmailAndPassword(email, password)
+            .then(() => {
+                console.log("inscription finis")
+                logInWithEmailAndPassword(email, password)
+                    .then((res) => {
+                        console.log("connexion")
+                        console.log(res)
+                        dispatch(setUser(res))
+                        persist.persist()
+                    })
+                    .catch((err) => console.log(err))
+            })
+            .catch((err) => console.log(err))
+        console.log("fin")
+    }
+
     useEffect(() => {
         if (loading) return;
         if (user) navigate("/Accueil");
     }, [user, loading]);
+
     return (
         <div className="register">
             <div className="register__container">
-                <input
-                    type="text"
-                    className="register__textBox"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
-                />
                 <input
                     type="text"
                     className="register__textBox"
@@ -46,7 +58,7 @@ function Inscription() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                 />
-                <button className="register__btn" onClick={register}>
+                <button className="register__btn" onClick={() => handleSignIn(email, password)}>
                     Register
                 </button>
                 <button

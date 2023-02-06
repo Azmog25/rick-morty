@@ -15,7 +15,13 @@ import {
     collection,
     where,
     addDoc,
+    doc,
+    updateDoc,
+    setDoc,
+    getDoc
 } from "firebase/firestore";
+import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
+import {persist} from "../redux/store";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCZIGWOuHMiuEPXn2F83OvLQMj3gBljA1Q",
@@ -52,26 +58,32 @@ const signInWithGoogle = async () => {
 };
 
 const logInWithEmailAndPassword = async (email, password) => {
+    let user = null
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, password)
+            .then((res) => {
+                user = res.user
+            })
     } catch (err) {
         console.error(err);
         alert(err.message);
     }
+    return user
 };
 
-const registerWithEmailAndPassword = async (name, email, password) => {
+const registerWithEmailAndPassword = async (email, password) => {
     if(validateEmail(email)) {
         if(validatePassword(password)) {
             try {
-                const res = await createUserWithEmailAndPassword(auth, email, password);
+                const res = await createUserWithEmailAndPassword(auth, email, password)
                 const user = res.user;
-                await addDoc(collection(db, "users"), {
-                    uid: user.uid,
-                    name,
-                    authProvider: "local",
-                    email,
-                });
+                const document = doc(db, "favoris", user.email)
+                const data = {
+                    uid: generateUniqueID(),
+                    userId: user.uid,
+                    favoris: []
+                }
+                await setDoc(document, data)
             } catch (err) {
                 console.error(err);
                 alert(err.message);
@@ -94,10 +106,6 @@ const sendPasswordReset = async (email) => {
     }
 };
 
-const logout = () => {
-    signOut(auth);
-};
-
 function validateEmail(email) {
     let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return regex.test(email);
@@ -108,13 +116,45 @@ function validatePassword(password) {
     return regex.test(password);
 }
 
+async function saveFavoris(favoris) {
+    const user = auth.currentUser
+    const fav = doc(db, "favoris", user.email)
+
+    await updateDoc(fav, {
+        favoris: favoris
+    })
+        .then(() => {
+            console.log("favoris mis à jour")
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+}
+
+async function getFavoris(user) {
+    const fav = doc(db, "favoris", user.email)
+    let tab = []
+
+    await getDoc(fav)
+        .then((res) => {
+            for(let i = 0; i<res.data().favoris.length; i++) {
+                tab.push(res.data().favoris[i])
+            }
+            console.log("Data : ", tab)
+        })
+        .catch((err) => console.log(err))
+
+    return tab
+}
+
 export {
     auth,
     db,
     signInWithGoogle,
+    saveFavoris,
+    getFavoris,
     logInWithEmailAndPassword,
     signInWithEmailAndPassword,
     registerWithEmailAndPassword,
     sendPasswordReset,
-    logout,
 };

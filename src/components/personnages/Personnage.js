@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {useCookies} from "react-cookie";
 import {Button, Card} from "react-bootstrap";
+import { saveFavoris } from '../../database/DBHandler'
 
 function Personnage(props) {
     const [cookies, setCookies] = useCookies(['favoris'])
@@ -15,10 +16,9 @@ function Personnage(props) {
             favIds.push(id)
         }
         setIsFavorite(!isFavorite)
+        saveFavoris(favIds)
         setCookies("favoris", favIds)
     }
-
-
 
     return (
         <Card style={{ width: '18rem', margin: '2rem'}} key={props.data.id} className={"shadow-lg"}>
